@@ -7,24 +7,6 @@ import java.util.function.Supplier;
 
 public class TemporalGenerator {
 
-    private void insertMeetings() {
-        try {
-            Connection connection = getConnection();
-
-            String insertQuery = "INSERT INTO meeting(\n" +
-                    "            id, name, location, duration, creation_date)\n" +
-                    "    VALUES (?, ?, ?, ?, ?);";
-
-            PreparedStatement st = connection.prepareStatement(insertQuery);
-
-            st.executeUpdate();
-
-            closeConnection(connection);
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     private final Consumer<PreparedStatement> randomEvents = ps -> {
         try {
             ps.clearParameters();
