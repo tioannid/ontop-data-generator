@@ -42,6 +42,13 @@ public class TemporalGenerator {
         }
     };
 
+    private final Supplier<String> insertMeetingsSql = () -> {
+        final String insertQuery = "INSERT INTO meeting(\n" +
+                "            id, name, location, duration, creation_date)\n" +
+                "    VALUES (?, ?, ?, ?, ?);";
+        return insertQuery;
+    };
+
     private final Supplier<String> insertEventsSql = () -> {
         final String insertQuery = "INSERT INTO event(\n" +
                 "            id, duration, description, time_propagated)\n" +
