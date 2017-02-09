@@ -19,10 +19,16 @@ public class RandomTimestampGenerator {
     private static final Range<Integer> MINUTES = Range.between(0, 59);
     private static final Range<Integer> SECONDS = Range.between(0, 59);
 
-    private final ThreadLocal<Calendar> cal = ThreadLocal.withInitial(() -> Calendar.getInstance());
+    private final ThreadLocal<Calendar> cal;
 
-    private ThreadLocal<Supplier<Calendar>> calendarSupplier = new ThreadLocal<>();
-    private final Predicate<Calendar> isAfter = after -> cal.get().after(calendarSupplier.get().get());
+    private ThreadLocal<Supplier<Calendar>> calendarSupplier;
+    private final Predicate<Calendar> isAfter;
+
+    public RandomTimestampGenerator() {
+        cal = ThreadLocal.withInitial(() -> Calendar.getInstance());
+        calendarSupplier = new ThreadLocal<>();
+        isAfter = after -> cal.get().after(calendarSupplier.get().get());
+    }
 
     public final Timestamp randomTimestamp() {
 
