@@ -1,28 +1,48 @@
 package gr.maenolis.ontop.generator;
 
 import java.sql.*;
-import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class TemporalGenerator {
 
-    private final Consumer<PreparedStatement> randomEvents = ps -> {
-        try {
-            ps.clearParameters();
-            Calendar cal = Calendar.getInstance();
-            cal.set(1900, 5, 12);
-            ps.setTimestamp(1, new Timestamp(cal.getTimeInMillis()));
-            cal.set(1901, 5, 12);
-            ps.setTimestamp(2, new Timestamp(cal.getTimeInMillis()));
-            ps.setString(3, null);
-            cal.set(1902, 5, 12);
-            ps.setTimestamp(4, new Timestamp(cal.getTimeInMillis()));
-            ps.addBatch();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    };
+    private final RandomTimestampGenerator timestampGenerator;
+    private final Consumer<PreparedStatement> randomAfterEvents;
+    private final Consumer<PreparedStatement> randomBeforeEvents;
+
+    public TemporalGenerator() {
+        timestampGenerator = new RandomTimestampGenerator();
+
+        randomAfterEvents = ps -> {
+            try {
+                ps.clearParameters();
+                final Timestamp start = timestampGenerator.randomTimestamp();
+                ps.setTimestamp(1, start);
+                ps.setTimestamp(2, timestampGenerator.randomTimestampAfter(start));
+                ps.setString(3, null);
+                ps.setTimestamp(4, timestampGenerator.randomTimestamp());
+                ps.addBatch();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        };
+
+        randomBeforeEvents = ps -> {
+            try {
+                ps.clearParameters();
+                final Timestamp end = timestampGenerator.randomTimestamp();
+                ps.setTimestamp(1, timestampGenerator.randomTimestampBefore(end));
+                ps.setTimestamp(2, end);
+                ps.setString(3, null);
+                ps.setTimestamp(4, timestampGenerator.randomTimestamp());
+                ps.addBatch();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        };
+    }
+
+
 
     private final Supplier<String> insertMeetingsSql = () -> {
         final String insertQuery = "INSERT INTO meeting(\n" +
@@ -82,6 +102,7 @@ public class TemporalGenerator {
 
     public static void main(String... args) {
         final TemporalGenerator gen = new TemporalGenerator();
-        gen.batchInsert(50000, gen.randomEvents, gen.insertEventsSql);
+        gen.batchInsert(100000, gen.randomAfterEvents, gen.insertEventsSql);
+        gen.batchInsert(100000, gen.randomBeforeEvents, gen.insertEventsSql);
     }
 }
