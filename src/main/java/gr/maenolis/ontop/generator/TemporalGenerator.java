@@ -102,7 +102,7 @@ public class TemporalGenerator {
 
     public static void main(String... args) {
         final TemporalGenerator gen = new TemporalGenerator();
-        gen.batchInsert(100000, gen.randomAfterEvents, gen.insertEventsSql);
-        gen.batchInsert(100000, gen.randomBeforeEvents, gen.insertEventsSql);
+        gen.batchInsert(10000, gen.randomAfterEvents, gen.insertEventsSql);
+        gen.batchInsert(10000, gen.randomBeforeEvents, gen.insertEventsSql);
     }
 }

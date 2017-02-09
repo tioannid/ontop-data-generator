@@ -41,12 +41,8 @@ public class RandomTimestampGenerator {
 
     public final Timestamp randomTimestampAfter(final Timestamp start) {
 
-        final Calendar startCal = DateUtils.toCalendar(start);
-
-        final Calendar calendar = cal.get();
-
-        final Consumer<Calendar> calendarConsumer = st -> {
-            calendar.set(
+        final Consumer<Calendar> consumer = st -> {
+            cal.get().set(
                     RandomUtils.nextInt(st.get(Calendar.YEAR), YEARS.getMaximum()),
                     RandomUtils.nextInt(st.get(Calendar.MONTH), MONTHS.getMaximum()),
                     RandomUtils.nextInt(st.get(Calendar.DAY_OF_MONTH), DAYS.getMaximum()),
@@ -56,29 +52,17 @@ public class RandomTimestampGenerator {
             );
         };
 
-        calendarSupplier.set(() -> {
-            return startCal;
-        });
+        final Supplier<Calendar> supplier = () -> {
+            return DateUtils.toCalendar(start);
+        };
 
-        int i = 0;
-        do {
-            calendarConsumer.accept(startCal);
-            if (i++ > 0) {
-                System.out.println(i);
-            }
-        } while (isAfter.negate().test(calendar));
-
-        return new Timestamp(calendar.getTimeInMillis());
+        return randomTimestamp(start, consumer, supplier, isAfter.negate());
     }
 
     public final Timestamp randomTimestampBefore(final Timestamp end) {
 
-        final Calendar endCal = DateUtils.toCalendar(end);
-
-        final Calendar calendar = cal.get();
-
-        final Consumer<Calendar> calendarConsumer = st -> {
-            calendar.set(
+        final Consumer<Calendar> consumer = st -> {
+            cal.get().set(
                     RandomUtils.nextInt(YEARS.getMinimum(), st.get(Calendar.YEAR)),
                     RandomUtils.nextInt(MONTHS.getMinimum(), st.get(Calendar.MONTH)),
                     RandomUtils.nextInt(DAYS.getMinimum(), st.get(Calendar.DAY_OF_MONTH)),
@@ -88,18 +72,25 @@ public class RandomTimestampGenerator {
             );
         };
 
-        calendarSupplier.set(() -> {
-            return endCal;
-        });
+        final Supplier<Calendar> supplier = () -> {
+            return DateUtils.toCalendar(end);
+        };
+
+        return randomTimestamp(end, consumer, supplier, isAfter);
+    }
+
+    public final Timestamp randomTimestamp(final Timestamp time, final Consumer<Calendar> consumer,
+           final Supplier<Calendar> supplier, final Predicate<Calendar> predicate) {
+
+        final Calendar timeCal = DateUtils.toCalendar(time);
+
+        calendarSupplier.set(supplier);
 
         int i = 0;
         do {
-            calendarConsumer.accept(endCal);
-            if (i++ > 0) {
-                System.out.println(i);
-            }
-        } while (isAfter.test(calendar));
+            consumer.accept(timeCal);
+        } while (predicate.test(cal.get()));
 
-        return new Timestamp(calendar.getTimeInMillis());
+        return new Timestamp(cal.get().getTimeInMillis());
     }
 }
