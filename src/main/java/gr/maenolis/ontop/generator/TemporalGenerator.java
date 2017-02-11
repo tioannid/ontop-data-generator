@@ -1,49 +1,147 @@
 package gr.maenolis.ontop.generator;
 
+import gr.maenolis.ontop.model.Period;
+
 import java.sql.*;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 public class TemporalGenerator {
 
     private final RandomTimestampGenerator timestampGenerator;
-    private final Consumer<PreparedStatement> randomAfterEvents;
-    private final Consumer<PreparedStatement> randomBeforeEvents;
+    private final Function<PreparedStatement, Period> randomPeriod;
+    private final BiConsumer<PreparedStatement, Period> adjacentAfterPeriod;
+    private final BiConsumer<PreparedStatement, Period> adjacentBeforePeriod;
+    private final BiConsumer<PreparedStatement, Period> containsPeriod;
+    private final BiConsumer<PreparedStatement, Period> containedByPeriod;
+    private final BiConsumer<PreparedStatement, Period> overRightPeriod;
+    private final BiConsumer<PreparedStatement, Period> overLeftPeriod;
+    private final BiConsumer<PreparedStatement, Period> equalPeriod;
 
     public TemporalGenerator() {
         timestampGenerator = new RandomTimestampGenerator();
 
-        randomAfterEvents = ps -> {
+        randomPeriod = ps -> {
             try {
                 ps.clearParameters();
                 final Timestamp start = timestampGenerator.randomTimestamp();
+                final Timestamp end = timestampGenerator.randomTimestampAfter(start);
                 ps.setTimestamp(1, start);
-                ps.setTimestamp(2, timestampGenerator.randomTimestampAfter(start));
+                ps.setTimestamp(2, end);
                 ps.setString(3, null);
                 ps.setTimestamp(4, timestampGenerator.randomTimestamp());
                 ps.addBatch();
+                return new Period(start, end);
             } catch (SQLException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         };
 
-        randomBeforeEvents = ps -> {
+        adjacentAfterPeriod = (ps, period) -> {
             try {
                 ps.clearParameters();
-                final Timestamp end = timestampGenerator.randomTimestamp();
-                ps.setTimestamp(1, timestampGenerator.randomTimestampBefore(end));
+                ps.setTimestamp(1, period.getStart());
+                final Timestamp end = timestampGenerator.randomTimestampAfter(period.getStart());
                 ps.setTimestamp(2, end);
                 ps.setString(3, null);
                 ps.setTimestamp(4, timestampGenerator.randomTimestamp());
                 ps.addBatch();
             } catch (SQLException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        };
+
+        adjacentBeforePeriod = (ps, period) -> {
+            try {
+                ps.clearParameters();
+                final Timestamp start = timestampGenerator.randomTimestampBefore(period.getEnd());
+                ps.setTimestamp(1, start);
+                ps.setTimestamp(2, period.getEnd());
+                ps.setString(3, null);
+                ps.setTimestamp(4, timestampGenerator.randomTimestamp());
+                ps.addBatch();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+
+        containsPeriod = (ps, period) -> {
+            try {
+                ps.clearParameters();
+                final Timestamp start = timestampGenerator.randomTimestampBefore(period.getStart());
+                final Timestamp end = timestampGenerator.randomTimestampAfter(period.getEnd());
+                ps.setTimestamp(1, start);
+                ps.setTimestamp(2, end);
+                ps.setString(3, null);
+                ps.setTimestamp(4, timestampGenerator.randomTimestamp());
+                ps.addBatch();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+
+        containedByPeriod = (ps, period) -> {
+            try {
+                ps.clearParameters();
+                final Timestamp start = timestampGenerator.randomTimestampAfter(period.getStart());
+                final Timestamp end = timestampGenerator.randomTimestampBefore(period.getEnd());
+                ps.setTimestamp(1, start);
+                ps.setTimestamp(2, end);
+                ps.setString(3, null);
+                ps.setTimestamp(4, timestampGenerator.randomTimestamp());
+                ps.addBatch();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+
+        overRightPeriod = (ps, period) -> {
+            try {
+                ps.clearParameters();
+                final Timestamp start = timestampGenerator.randomTimestampBefore(period.getEnd());
+                final Timestamp end = timestampGenerator.randomTimestampAfter(period.getEnd());
+                ps.setTimestamp(1, start);
+                ps.setTimestamp(2, end);
+                ps.setString(3, null);
+                ps.setTimestamp(4, timestampGenerator.randomTimestamp());
+                ps.addBatch();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+
+        overLeftPeriod = (ps, period) -> {
+            try {
+                ps.clearParameters();
+                final Timestamp start = timestampGenerator.randomTimestampBefore(period.getStart());
+                final Timestamp end = timestampGenerator.randomTimestampAfter(period.getStart());
+                ps.setTimestamp(1, start);
+                ps.setTimestamp(2, end);
+                ps.setString(3, null);
+                ps.setTimestamp(4, timestampGenerator.randomTimestamp());
+                ps.addBatch();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+
+        equalPeriod = (ps, period) -> {
+            try {
+                ps.clearParameters();
+                ps.setTimestamp(1, period.getStart());
+                ps.setTimestamp(2, period.getEnd());
+                ps.setString(3, null);
+                ps.setTimestamp(4, timestampGenerator.randomTimestamp());
+                ps.addBatch();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         };
     }
 
 
-
+    /**
+     * TODO:
+     */
     private final Supplier<String> insertMeetingsSql = () -> {
         final String insertQuery = "INSERT INTO meeting(\n" +
                 "            id, name, location, duration, creation_date)\n" +
@@ -58,17 +156,19 @@ public class TemporalGenerator {
         return insertQuery;
     };
 
-    private void batchInsert(final int totalInserts, final Consumer<PreparedStatement> consumer, final Supplier<String> querySupplier) {
+    private void batchInsert(final int totalInserts, final Function<PreparedStatement, Period> function, final BiConsumer<PreparedStatement, Period> consumer, final Supplier<String> querySupplier) {
         try {
             Connection connection = getConnection();
             PreparedStatement st = connection.prepareStatement(querySupplier.get());
 
-            for (int i = 0; i < totalInserts; i++) {
+            final Period random = function.apply(st);
+
+            for (int i = 0; i < totalInserts - 1; i++) {
                 if (i % BATCH_SIZE == 0 && i > 0) {
                     st.executeBatch();
                     connection.commit();
                 }
-                consumer.accept(st);
+                consumer.accept(st, random);
             }
             st.executeBatch();
             connection.commit();
@@ -102,7 +202,26 @@ public class TemporalGenerator {
 
     public static void main(String... args) {
         final TemporalGenerator gen = new TemporalGenerator();
-        gen.batchInsert(1000000, gen.randomAfterEvents, gen.insertEventsSql);
-        gen.batchInsert(1000000, gen.randomBeforeEvents, gen.insertEventsSql);
+        /**
+         * Events inserting.
+         */
+        gen.batchInsert(1000000, gen.randomPeriod, gen.adjacentAfterPeriod, gen.insertEventsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.adjacentBeforePeriod, gen.insertEventsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.containsPeriod, gen.insertEventsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.containedByPeriod, gen.insertEventsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.overRightPeriod, gen.insertEventsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.overLeftPeriod, gen.insertEventsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.equalPeriod, gen.insertEventsSql);
+
+        /**
+         * Meetings inserting.
+         */
+        gen.batchInsert(1000000, gen.randomPeriod, gen.adjacentAfterPeriod, gen.insertMeetingsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.adjacentBeforePeriod, gen.insertMeetingsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.containsPeriod, gen.insertMeetingsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.containedByPeriod, gen.insertMeetingsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.overRightPeriod, gen.insertMeetingsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.overLeftPeriod, gen.insertMeetingsSql);
+        gen.batchInsert(1000000, gen.randomPeriod, gen.equalPeriod, gen.insertMeetingsSql);
     }
 }

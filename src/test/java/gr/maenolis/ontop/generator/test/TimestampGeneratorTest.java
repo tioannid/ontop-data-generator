@@ -11,7 +11,7 @@ import java.sql.Timestamp;
  */
 public class TimestampGeneratorTest {
 
-    private static final int NUMBER_OF_TESTS = 1000000;
+    private static final int NUMBER_OF_TESTS = 1000;
 
     @Test
     public void timestampBefore() {
