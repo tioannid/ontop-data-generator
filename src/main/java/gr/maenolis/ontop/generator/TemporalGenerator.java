@@ -93,7 +93,7 @@ public class TemporalGenerator {
 
     private static final String DRIVER_NAME = "org.postgresql.Driver";
     private static final String URL_PREFIX = "jdbc:postgresql://";
-    private static final String DB_IP = "127.0.0.1";
+    private static final String DB_IP = "192.168.1.66";
     private static final String DB_PORT = "5432";
     private static final String DB_NAME = "endpoint";
     private static final String DB_USERNAME = "postgres";
@@ -102,7 +102,7 @@ public class TemporalGenerator {
 
     public static void main(String... args) {
         final TemporalGenerator gen = new TemporalGenerator();
-        gen.batchInsert(10000, gen.randomAfterEvents, gen.insertEventsSql);
-        gen.batchInsert(10000, gen.randomBeforeEvents, gen.insertEventsSql);
+        gen.batchInsert(1000000, gen.randomAfterEvents, gen.insertEventsSql);
+        gen.batchInsert(1000000, gen.randomBeforeEvents, gen.insertEventsSql);
     }
 }
