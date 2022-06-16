@@ -32,3 +32,6 @@ plugin-runtime
 
 ontop-optique-test
 tmp
+
+# Netbeans generated files
+nbactions.xml
