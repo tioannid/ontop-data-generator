@@ -4,7 +4,6 @@ import org.apache.commons.lang3.RandomUtils;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Date;
 
 public class RandomTimestampGenerator {
 
@@ -27,6 +26,12 @@ public class RandomTimestampGenerator {
     public RandomTimestampGenerator() {
         this(2050, 11, 30);
     }
+    
+    // -- Data Accessors
+
+    public long getCalendarMSecs() {
+        return calendarMSecs;
+    }
 
     // -- Methods
     public final Timestamp randomTimestamp() {
@@ -35,19 +40,19 @@ public class RandomTimestampGenerator {
         return new Timestamp(RandomUtils.nextLong(0L, calendarMSecs));
     }
 
-    public final Timestamp randomTimestampAfter(final Date startDate) {
+    public final Timestamp randomTimestampAfter(final Timestamp startDate) {
         // get a random long number between the number of msecs represented by
         // startDate and the generator's calendar time value expressed in msecs
         return new Timestamp(RandomUtils.nextLong(startDate.getTime(), calendarMSecs));
     }
 
-    public final Timestamp randomTimestampBefore(final Date endDate) {
+    public final Timestamp randomTimestampBefore(final Timestamp endDate) {
         // get a random long number between 0L and the number of msecs 
         // represented by endDate
         return new Timestamp(RandomUtils.nextLong(0L, endDate.getTime()));
     }
 
-    public final Timestamp randomTimestampBetween(final Date start, final Date endDate) {
+    public final Timestamp randomTimestampBetween(final Timestamp start, final Timestamp endDate) {
         // get a random long number between the number of msecs represented by
         // startDate and the number of msecs represented by endDate
         return new Timestamp(RandomUtils.nextLong(start.getTime(), endDate.getTime()));

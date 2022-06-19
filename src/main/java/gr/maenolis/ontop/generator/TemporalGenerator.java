@@ -7,6 +7,7 @@ import java.util.function.*;
 
 public class TemporalGenerator {
 
+    // -- Data Members
     private final RandomTimestampGenerator timestampGenerator;
     private final Supplier<Period> randomPeriod;
     private final BiConsumer<PreparedStatement, Period> insertEvent;
@@ -19,15 +20,22 @@ public class TemporalGenerator {
     private final Function<Period, Period> overLeftPeriod;
     private final Function<Period, Period> equalPeriod;
 
+    // -- Constructors
+    // 1. default constructor uses a default RandomTimestampGenerator instance
+    //    based on (30-Nov-2050)
     public TemporalGenerator() {
         timestampGenerator = new RandomTimestampGenerator();
 
+        // returns a Period with start timestamp <= timestampGenerator base date
+        // (30-Nov-2050) and end timestamp, start <= end <=  (30-Nov-2050)
         randomPeriod = () -> {
             final Timestamp start = timestampGenerator.randomTimestamp();
             final Timestamp end = timestampGenerator.randomTimestampAfter(start);
             return new Period(start, end);
         };
 
+        // returns a Period with start timestamp >= start timestamp of input 
+        // period and the same end timestamp
         adjacentAfterPeriod = period -> {
             final Timestamp end = timestampGenerator.randomTimestampAfter(period.getStart());
             return new Period(period.getStart(), end);
