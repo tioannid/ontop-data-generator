@@ -8,9 +8,11 @@ import java.util.Date;
 
 public class RandomTimestampGenerator {
 
+    // -- Data Members
     private final long calendarMSecs;
 
-    // constructor allows to use as reference a date of choice
+    // -- Constructors
+    // 1. constructor allows to use as reference a date of choice
     public RandomTimestampGenerator(int year, int month, int day) {
         // get a Calendar object whose calendar fields have been initialized 
         // with the current date and time
@@ -21,11 +23,12 @@ public class RandomTimestampGenerator {
         calendarMSecs = end.getTimeInMillis();
     }
     
-    // default constructor uses (30-Nov-2050)
+    // 2. default constructor uses (30-Nov-2050)
     public RandomTimestampGenerator() {
         this(2050, 11, 30);
     }
 
+    // -- Methods
     public final Timestamp randomTimestamp() {
         // get a random long number between 0L and
         // the generator's calendar time value expressed in msecs
