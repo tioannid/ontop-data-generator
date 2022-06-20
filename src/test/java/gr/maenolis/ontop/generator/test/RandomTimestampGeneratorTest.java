@@ -13,9 +13,10 @@ public class RandomTimestampGeneratorTest {
     @Test
     public void timestampBefore() {
         final RandomTimestampGenerator generator = new RandomTimestampGenerator();
+        Timestamp t1,t2;
         for (int i = 0; i < NUMBER_OF_TESTS; i++) {
-            final Timestamp t1 = generator.randomTimestamp();
-            final Timestamp t2 = generator.randomTimestampBefore(t1);
+            t1 = generator.randomTimestamp();
+            t2 = generator.randomTimestampBefore(t1);
             Assert.assertTrue(t2.before(t1));
         }
     }
@@ -23,9 +24,10 @@ public class RandomTimestampGeneratorTest {
     @Test
     public void timestampAfter() {
         final RandomTimestampGenerator generator = new RandomTimestampGenerator();
+        Timestamp t1,t2;
         for (int i = 0; i < NUMBER_OF_TESTS; i++) {
-            final Timestamp t1 = generator.randomTimestamp();
-            final Timestamp t2 = generator.randomTimestampAfter(t1);
+            t1 = generator.randomTimestamp();
+            t2 = generator.randomTimestampAfter(t1);
             Assert.assertTrue(t2.after(t1));
         }
     }
