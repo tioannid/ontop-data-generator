@@ -13,6 +13,7 @@ public class RandomTimestampGeneratorTest {
     @Test
     public void timestampBefore() {
         final RandomTimestampGenerator generator = new RandomTimestampGenerator();
+        Timestamp refDate = new Timestamp(generator.getCalendarMSecs());
         Timestamp t1,t2;
         for (int i = 0; i < NUMBER_OF_TESTS; i++) {
             t1 = generator.randomTimestamp();
@@ -24,6 +25,7 @@ public class RandomTimestampGeneratorTest {
     @Test
     public void timestampAfter() {
         final RandomTimestampGenerator generator = new RandomTimestampGenerator();
+        Timestamp refDate = new Timestamp(generator.getCalendarMSecs());
         Timestamp t1,t2;
         for (int i = 0; i < NUMBER_OF_TESTS; i++) {
             t1 = generator.randomTimestamp();
