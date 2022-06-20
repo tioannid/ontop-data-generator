@@ -6,9 +6,6 @@ import org.junit.Test;
 
 import java.sql.Timestamp;
 
-/**
- * Created by maenolis on 11/2/2017.
- */
 public class RandomTimestampGeneratorTest {
 
     private static final int NUMBER_OF_TESTS = 1000;

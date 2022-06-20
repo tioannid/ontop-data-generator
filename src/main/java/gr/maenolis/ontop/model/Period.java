@@ -2,9 +2,6 @@ package gr.maenolis.ontop.model;
 
 import java.sql.Timestamp;
 
-/**
- * Created by maenolis on 11/2/2017.
- */
 public class Period {
 
     // -- Data Members    
