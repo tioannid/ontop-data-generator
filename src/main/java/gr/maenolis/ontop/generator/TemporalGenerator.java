@@ -220,14 +220,14 @@ public class TemporalGenerator {
     }
 
     public static void main(String... args) {
-//        final TemporalGenerator gen = new TemporalGenerator(TemporalGenerator.DB_NAME,
-//                100,
-//                1000,
-//                2022,
-//                5,
-//                21);
+        final TemporalGenerator gen = new TemporalGenerator(TemporalGenerator.DB_NAME,
+                10,
+                4,
+                2022,
+                5,
+                21);
 
-        final TemporalGenerator gen = new TemporalGenerator();
+//        final TemporalGenerator gen = new TemporalGenerator();
         /**
          * Events inserting.
          */

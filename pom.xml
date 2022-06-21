@@ -39,6 +39,22 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>3.0.0</version>
+                    <!--
+                    Without the following configuration we could run the following:
+                    mvn exec:exec -Dexec.executable="java" -Dexec.args="-classpath %classpath gr.maenolis.ontop.generator.TemporalGenerator"
+                    but with the configuration we can run only:
+                    mvn exec:exec
+                    -->
+                    <configuration>
+                        <executable>java</executable>
+                        <arguments>
+                            <argument>-classpath</argument>
+                            <!-- automatically creates the classpath using all project dependencies,
+                            also adding the project build directory -->
+                            <classpath/>
+                            <argument>gr.maenolis.ontop.generator.TemporalGenerator</argument>
+                        </arguments>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
