@@ -15,6 +15,12 @@ public class Period {
         this.end = end;
     }
 
+    // 2. clone constructor
+    public Period(Period p) {
+        this.start = p.start;
+        this.end = p.end;
+    }
+
     // -- Data Accessors
     public Timestamp getStart() {
         return start;
