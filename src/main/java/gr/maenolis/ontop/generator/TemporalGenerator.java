@@ -22,12 +22,12 @@ public class TemporalGenerator {
 
     // -- Constructors
     // 1. default constructor uses a default RandomTimestampGenerator instance
-    //    based on (30-Nov-2050)
+    //    based on (30-Dec-2050)
     public TemporalGenerator() {
         timestampGenerator = new RandomTimestampGenerator();
 
         // returns a Period with start timestamp <= timestampGenerator base date
-        // (30-Nov-2050) and end timestamp, start <= end <=  (30-Nov-2050)
+        // (30-Dec-2050) and end timestamp, start <= end <=  (30-Dec-2050)
         randomPeriod = () -> {
             final Timestamp start = timestampGenerator.randomTimestamp();
             final Timestamp end = timestampGenerator.randomTimestampAfter(start);

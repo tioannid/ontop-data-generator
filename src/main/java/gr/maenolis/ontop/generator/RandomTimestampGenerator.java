@@ -8,7 +8,7 @@ import java.util.Calendar;
 public class RandomTimestampGenerator {
 
     // -- Static Members
-    final Timestamp zeroDayTS = new Timestamp(0L);
+    final static Timestamp zeroDayTS = new Timestamp(0L);
 
     // -- Data Members
     private final long calendarMSecs; // max timestamp in the domain in msecs
@@ -23,13 +23,14 @@ public class RandomTimestampGenerator {
         // with the current date and time
         Calendar end = Calendar.getInstance();
         // set the values for the calendar fields (YEAR, MONTH, DAY_OF_MONTH) 
-        // to (2050, 11,30). that is, 30th of November 2050
+        // to (2050, 11,30). that is, 30th of December 2050.
+        // Month value is 0-based. e.g., 0 for January.
         end.set(year, month, day);
         calendarMSecs = end.getTimeInMillis();
         calRefTS = new Timestamp(calendarMSecs);
     }
 
-    // 2. default constructor uses (30-Nov-2050)
+    // 2. default constructor uses (30-Dec-2050)
     public RandomTimestampGenerator() {
         this(2050, 11, 30);
     }
@@ -37,6 +38,10 @@ public class RandomTimestampGenerator {
     // -- Data Accessors
     public long getCalendarMSecs() {
         return calendarMSecs;
+    }
+
+    public Timestamp getCalRefTS() {
+        return calRefTS;
     }
 
     // -- Methods
