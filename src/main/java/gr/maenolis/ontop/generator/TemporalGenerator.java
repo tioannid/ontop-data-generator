@@ -9,8 +9,8 @@ public class TemporalGenerator {
 
     // -- Static Members
     private final static String insertMeetingsSql = "INSERT INTO meeting(\n"
-            + "            id, name, duration)\n"
-            + "    VALUES (nextval('meeting_id_seq'), ?, period_oc(?, ?));";
+            + "            id, name, duration, creation_date, location)\n"
+            + "    VALUES (nextval('meeting_id_seq'), ?, period_oc(?, ?), ?, ?);";
     private final static String insertEventsSql = "INSERT INTO event(\n"
             + "            id, duration, description, time_propagated)\n"
             + "    VALUES (nextval('event_id_seq'), period_oc(?, ?), ?, ?);";
@@ -141,10 +141,11 @@ public class TemporalGenerator {
             @Override
             public void accept(PreparedStatement ps, Period p) {
                 try {
+                    // id, duration, description, time_propagated
                     ps.clearParameters();
                     ps.setTimestamp(1, p.getStart());
                     ps.setTimestamp(2, p.getEnd());
-                    ps.setString(3, null);
+                    ps.setString(3, null); 
                     ps.setTimestamp(4, timestampGenerator.randomTimestamp());
                     ps.addBatch();
                 } catch (SQLException e) {
@@ -158,9 +159,11 @@ public class TemporalGenerator {
             public void accept(PreparedStatement ps, Period p) {
                 try {
                     ps.clearParameters();
-                    ps.setString(1, null);
+                    ps.setString(1, null); // name 
                     ps.setTimestamp(2, p.getStart());
                     ps.setTimestamp(3, p.getEnd());
+                    ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+                    ps.setString(5, null); // location
                     ps.addBatch();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
@@ -217,12 +220,14 @@ public class TemporalGenerator {
     }
 
     public static void main(String... args) {
-        final TemporalGenerator gen = new TemporalGenerator(TemporalGenerator.DB_NAME,
-                100,
-                1000,
-                2022,
-                5,
-                21);
+//        final TemporalGenerator gen = new TemporalGenerator(TemporalGenerator.DB_NAME,
+//                100,
+//                1000,
+//                2022,
+//                5,
+//                21);
+
+        final TemporalGenerator gen = new TemporalGenerator();
         /**
          * Events inserting.
          */

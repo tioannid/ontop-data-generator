@@ -22,9 +22,12 @@ description varchar(100),
 time_propagated timestamp with time zone
 );
 
+-- select id, name, location, duration, creation_date from meeting
 CREATE TABLE meeting (
 id serial,
+creation_date timestamp with time zone,
 name varchar(30),
+location varchar(50),
 duration period,
 description varchar(100));
 
