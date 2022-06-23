@@ -31,6 +31,11 @@ location varchar(50),
 duration period,
 description varchar(100));
 
+-- create temporal indexes
+CREATE INDEX event_duration_idx ON event USING GiST (duration);
+
+CREATE INDEX meeting_duration_idx ON meeting USING GiST (duration);
+
 -- run a test query to verify if temporal functionality is enabled
 -- should return :
 --               ?column? 
